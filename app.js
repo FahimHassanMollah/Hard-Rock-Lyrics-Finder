@@ -1,10 +1,13 @@
+const searchResultDiv = document.getElementById('search-result-parent-div');
+const songTile = document.getElementById('song-title');
+const lyrics = document.getElementById('lyrics');
 document.getElementById('search-button').addEventListener('click', event => {
-
-    const songName=document.getElementById('song-name').value;
-
+    const songName = document.getElementById('song-name').value;
+    searchResultDiv.innerHTML = "";
+    lyrics.innerHTML="";
+    songTile.innerHTML=""
     fetchLyricsFinderApi(`https://api.lyrics.ovh/suggest/${songName}`);
-
-
+    document.getElementById('song-name').value = "";
 });
 const fetchLyricsFinderApi = (apiUrl) => {
     fetch(apiUrl)
@@ -17,159 +20,111 @@ const fetchLyricsFinderApi = (apiUrl) => {
 };
 
 const displaySongInformation = (data) => {
-    const songTile=document.getElementById('song-title');
-    const lyrics=document.getElementById('lyrics');
-    const searchResultDiv=document.getElementById('search-result-parent-div');
     console.log(data);
-    for (let i = 0; i <10 ; i++) {
+    for (let i = 0; i < 10; i++) {
         console.log(data.data[i]);
-        let singleResult=createDiv('single-result row align-items-center my-3 p-3')
+        let singleResult = createDiv('single-result row align-items-center my-3 p-3')
         searchResultDiv.insertAdjacentElement("beforeend", singleResult);
-        let songInformationDiv=createDiv('col-md-9')
-
+        let songInformationDiv = createDiv('col-md-9')
         singleResult.insertAdjacentElement("afterbegin", songInformationDiv);
-        songInformationDiv.insertAdjacentElement("beforeend",createP('author lead','author-lead',`Album by ${data.data[i].artist.name}`));
-        songInformationDiv.insertAdjacentElement("afterbegin",createH3('lyrics-name','lyrics-name',`${data.data[i].title}`));
-
-        // songInformationDiv.insertAdjacentElement("beforeend",createP('author lead','author-lead','artist picture'));
-        songInformationDiv.insertAdjacentElement("beforeend",createArtistName('author lead','author-lead','Artist picture'));
-        songInformationDiv.appendChild(createImageElemet('rounded-circle','artist-image',`${data.data[i].artist.picture_xl}`));
-        let getLyricsDiv=createDiv('col-md-3 text-md-right text-center');
-        getLyricsDiv.appendChild(createGetLyricsButton('btn btn-success',`lyrics-button`,'Download'))
-
-        let getLyricsButton=createGetLyricsButton('btn btn-success','','Get Lyrics');
-        getLyricsDiv.insertAdjacentElement('afterbegin',getLyricsButton);
-        getLyricsButton.onclick=function(){
-
-            songTile.innerText=`${data.data[i].title} ---${data.data[i].artist.name}`;
+        songInformationDiv.insertAdjacentElement("beforeend", createP('author lead', 'author-lead', `Album by ${data.data[i].artist.name}`));
+        songInformationDiv.insertAdjacentElement("afterbegin", createH3('lyrics-name', 'lyrics-name', `${data.data[i].title}`));
+        songInformationDiv.insertAdjacentElement("beforeend", createArtistName('author lead', 'author-lead', 'Artist picture'));
+        songInformationDiv.appendChild(createImageElemet('rounded-circle', 'artist-image', `${data.data[i].artist.picture_xl}`));
+        let getLyricsDiv = createDiv('col-md-3 text-md-right text-center');
+        let listenSong = createListenSongButton('btn btn-success', `lyrics-button`, 'Listen song');
+        getLyricsDiv.appendChild(listenSong);
+        let getLyricsButton = createGetLyricsButton('btn btn-success', '', 'Get Lyrics');
+        getLyricsDiv.insertAdjacentElement('afterbegin', getLyricsButton);
+        getLyricsButton.onclick = function () {
+            songTile.innerText = `${data.data[i].title} ---${data.data[i].artist.name}`;
             try {
                 fetch(`https://api.lyrics.ovh/v1/${data.data[i].artist.name}/${data.data[i].title}`)
-                    .then(response =>response.json())
+                    .then(response => response.json())
                     .then(value => {
                         console.log(value);
-                        const checker=value.lyrics;
-                        if (checker===undefined) {
+                        const checker = value.lyrics;
+                        if (checker === undefined) {
+                            lyrics.innerHTML = "";
+                            songTile.innerHTML="";
                             alert('Sorry lyrics is not available')
-                        }
-                        else {
-                            lyrics.innerHTML=value.lyrics;
+                        } else {
+                            lyrics.innerHTML = value.lyrics;
                         }
 
                     })
-            }catch (e) {
+            } catch (e) {
                 console.log(e);
             }
-
-                // .catch(reason => {
-                //    window.prompt('hiiiiiiiii')
-                // })
-
         }
-        // getLyricsDiv.insertAdjacentElement('afterbegin',createGetLyricsButton('btn btn-success',`${data.data[i]}`,'Get Lyrics'))
-        songInformationDiv.insertAdjacentElement('afterend',getLyricsDiv);
-        // document.getElementById('get-lyrics-button').addEventListener('click', event => {
-        //     console.log('hi')
-        // });
-
+        songInformationDiv.insertAdjacentElement('afterend', getLyricsDiv);
+        listenSong.onclick = function () {
+            listenSong.href = data.data[i].preview;
+        }
     }
-    // searchResultDiv.addEventListener('click', event => {
-    //     console.log(event);
-    // });
-
-
-    // let singleResult=createDiv('single-result row align-items-center my-3 p-3')
-    // searchResultDiv.insertAdjacentElement("beforeend", singleResult);
-    // let songInformationDiv=createDiv('col-md-9')
-    //
-    // singleResult.insertAdjacentElement("afterbegin", songInformationDiv);
-    // songInformationDiv.insertAdjacentElement("beforeend",createP('author lead','author-lead','Album by'));
-    // songInformationDiv.insertAdjacentElement("afterbegin",createH3('lyrics-name','lyrics-name','Purple Noon'));
-    //
-    // // songInformationDiv.insertAdjacentElement("beforeend",createP('author lead','author-lead','artist picture'));
-    // songInformationDiv.insertAdjacentElement("beforeend",createArtistName('author lead','author-lead','artist picture'));
-    // songInformationDiv.appendChild(createImageElemet('rounded-circle','artist-image','https://www.w3schools.com/bootstrap4/paris.jpg'));
-    // let getLyricsDiv=createDiv('col-md-3 text-md-right text-center');
-    // getLyricsDiv.appendChild(createGetLyricsButton('btn btn-success','','Download'))
-    // getLyricsDiv.insertAdjacentElement('afterbegin',createGetLyricsButton('btn btn-success','get-lyrics-button','Get Lyrics'))
-    // songInformationDiv.insertAdjacentElement('afterend',getLyricsDiv);
-    // songInformationDiv.insertAdjacentElement('afterend',getLyricsDiv);
-
-
-
 };
 
 function createDiv(className) {
-        let divElemet = document.createElement('div');
+    let divElement = document.createElement('div');
+    divElement.className = className;
+    return divElement;
+}
 
-        divElemet.className = className;
-        return divElemet;
-        // document.body.appendChild(div);
-    //
-    // let element = document.getElementById("myDIV");
-    // element.classList.add("mystyle");
-    // div.id = 'container';
-    // div.innerHTML = 'Hi there!';
+function createH3(className, idName, value) {
+    let h3Element = document.createElement('H3');
+    h3Element.className = className;
+    h3Element.id = idName;
+    h3Element.innerText = value
+    return h3Element;
 }
-function createH3(className,idName,value) {
-    let h3Elemet = document.createElement('H3');
-    h3Elemet.className = className;
-    h3Elemet.id=idName;
-    h3Elemet.innerText=value
-    return h3Elemet;
+
+function createP(className, idName, value) {
+    let pElement = document.createElement('p');
+    pElement.className = className;
+    pElement.id = idName;
+    pElement.innerText = value
+    return pElement;
 }
-function createP(className,idName,value) {
-    let pElemet = document.createElement('p');
-    // let span=document.createElement('span');
-    // span.innerText='Washed Out'
-    // pElemet.appendChild(span);
-    pElemet.className = className;
-    pElemet.id=idName;
-    pElemet.innerText=value
-    return pElemet;
+
+function createGetLyricsButton(className, idName, value) {
+    let buttonElement = document.createElement('button');
+    buttonElement.className = className;
+    buttonElement.id = idName;
+    buttonElement.style.marginBottom = '8px'
+    buttonElement.innerText = value;
+    return buttonElement;
 }
-function createGetLyricsButton(className,idName,value) {
-    let buttonElemet = document.createElement('button');
-    buttonElemet.className = className;
-    buttonElemet.id=idName;
-    buttonElemet.style.marginBottom='8px'
-    buttonElemet.innerText=value;
-    // buttonElemet.onclick=function (event) {
-    //     console.log('hi')
-    //     console.log(idName.artist.name);
-    // }
-    return buttonElemet;
+
+function createImageElemet(className, idName, hrefValue) {
+    let buttonElement = document.createElement('img');
+    buttonElement.style.maxWidth = '100px';
+    buttonElement.style.maxHeight = '100px';
+    buttonElement.className = className;
+    buttonElement.id = idName;
+    buttonElement.innerText = 'sdfadsf';
+    buttonElement.src = hrefValue
+    return buttonElement;
 }
-function createImageElemet(className,idName,hrefValue) {
+
+function createArtistName(className, idName, value) {
+    let pElement = document.createElement('p');
+    pElement.className = className;
+    pElement.style.display = 'inline-block';
+    pElement.style.marginRight = '16px';
+    pElement.id = idName;
+    pElement.innerText = value
+    return pElement;
+}
+
+function createListenSongButton(className, idName, value) {
+    let anchorElement = document.createElement('a');
+    anchorElement.className = className;
+    anchorElement.id = idName;
+    anchorElement.style.marginBottom = '8px'
+    anchorElement.innerText = value;
+    anchorElement.target = "_blank";
+    anchorElement.style.cursor = 'pointer';
+    return anchorElement;
+}
 
 
-    // let span = document.createElement('span');
-    // span.innerText='artist picture'
-    // buttonElemet.appendChild(span);
-    let buttonElemet = document.createElement('img');
-    buttonElemet.style.maxWidth='100px';
-    buttonElemet.style.maxHeight='100px';
-    buttonElemet.className = className;
-    buttonElemet.id=idName;
-    buttonElemet.innerText='sdfadsf';
-    buttonElemet.src=hrefValue
-    return buttonElemet;
-}
-function createArtistName(className,idName,value) {
-    let pElemet = document.createElement('p');
-    // let span=document.createElement('span');
-    // span.innerText='Washed Out'
-    // pElemet.appendChild(span);
-    pElemet.className = className;
-    pElemet.style.display='inline-block';
-    pElemet.style.marginRight='16px';
-    pElemet.id=idName;
-    pElemet.innerText=value
-    return pElemet;
-}
-function customAlert() {
-    let js_name = ['lyrics not found', 'lyrics not found']
-
-    for (let i = 0; i < js_name.length; i++) {
-        alert(js_name[i]);
-    }
-}
